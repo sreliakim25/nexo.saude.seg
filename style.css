@@ -1,0 +1,783 @@
+/**
+ * NEXO · SAÚDE & SANEAMENTO
+ * Folha de Estilos Principal (Design System)
+ * 
+ * Este arquivo define a identidade visual do projeto acadêmico de acordo com
+ * as diretrizes estéticas exigidas, utilizando CSS moderno e design responsivo.
+ */
+
+/* ==========================================================================
+   1. VARIÁVEIS DO SISTEMA (Design Tokens)
+   ========================================================================== */
+:root {
+  /* Cores da Identidade Visual */
+  --bg-creme: #F0EAD8;          /* Fundo principal creme */
+  --bg-card: #FDFBF7;           /* Fundo dos cartões (creme ligeiramente mais claro) */
+  --primary-red: #8B1A1A;       /* Vermelho escuro para marca, botões principais e títulos */
+  --primary-red-hover: #6E1414; /* Vermelho escuro com brilho reduzido para hover */
+  --accent-gold: #E8A020;       /* Dourado para detalhes, bordas de destaque e ícones */
+  --accent-gold-soft: rgba(232, 160, 32, 0.1);
+  --accent-red-soft: rgba(139, 26, 26, 0.05);
+
+  /* Cores de Contraste e Texto (Garantindo Acessibilidade WCAG) */
+  --text-dark: #2A1B1B;         /* Marrom muito escuro para texto principal (ótimo contraste sobre creme) */
+  --text-muted: #5D4D4D;        /* Marrom médio para textos secundários e legendas */
+  --border-color: rgba(139, 26, 26, 0.15); /* Bordas vermelhas sutis */
+  
+  /* Cores de Status */
+  --status-good-green: #2E6B4E; /* Verde escuro (acessível) para correlações benéficas */
+  --status-bad-red: #B22222;    /* Vermelho para correlações de risco ou alertas */
+  
+  /* Fontes Exigidas */
+  --font-title: 'Playfair Display', 'Georgia', serif;
+  --font-body: 'Crimson Pro', 'Times New Roman', serif;
+  
+  /* Transições e Efeitos */
+  --shadow-sm: 0 2px 4px rgba(42, 27, 27, 0.05);
+  --shadow-md: 0 4px 12px rgba(139, 26, 26, 0.08);
+  --shadow-gold: 0 4px 15px rgba(232, 160, 32, 0.15);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius-card: 12px;
+  --border-radius-btn: 6px;
+}
+
+/* Reset básico para manter consistência entre navegadores */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-creme);
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  font-size: 1.15rem; /* Aumentado ligeiramente devido à fonte Crimson Pro ser elegante e compacta */
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  color: var(--primary-red);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* ==========================================================================
+   2. ESTRUTURA E LAYOUT (Sidebar + Conteúdo)
+   ========================================================================== */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Fixa lateral para telas grandes */
+.sidebar {
+  width: 280px;
+  background-color: var(--bg-card);
+  border-right: 2px solid var(--border-color);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 100;
+  transition: var(--transition-smooth);
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--accent-gold);
+}
+
+.brand-title {
+  font-size: 1.8rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.5px;
+}
+
+.brand-subtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.nav-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1.2rem;
+  color: var(--text-dark);
+  text-decoration: none;
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  border-radius: var(--border-radius-btn);
+  border: 1px solid transparent;
+  transition: var(--transition-smooth);
+  cursor: pointer;
+}
+
+.nav-link i, .nav-link span.icon {
+  width: 24px;
+  text-align: center;
+  font-size: 1.3rem;
+}
+
+.nav-link:hover, .nav-link.active {
+  background-color: var(--accent-red-soft);
+  color: var(--primary-red);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-link.active {
+  border-left: 4px solid var(--accent-gold);
+  background-color: rgba(139, 26, 26, 0.08);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+/* Área de Conteúdo Principal */
+.main-content {
+  flex: 1;
+  margin-left: 280px; /* Alinhado à largura da sidebar */
+  padding: 2.5rem;
+  min-width: 0; /* Evita que o flex-item transborde */
+  transition: var(--transition-smooth);
+}
+
+/* Mobile Header (invisível em desktop) */
+.mobile-header {
+  display: none;
+  background-color: var(--bg-card);
+  border-bottom: 2px solid var(--border-color);
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-toggle {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--primary-red);
+  font-size: 1.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--border-radius-btn);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   3. SEÇÕES E ABAS (Visualizações da SPA)
+   ========================================================================== */
+.view-section {
+  display: none; /* Escondido por padrão, controlado via JS */
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   4. BARRA DE FILTROS GLOBAIS
+   ========================================================================== */
+.filter-bar {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-top: 4px solid var(--accent-gold);
+  border-radius: var(--border-radius-card);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.2rem;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-red);
+}
+
+.filter-select {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--text-dark);
+  background-color: var(--bg-creme);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-btn);
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.filter-select:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 5px rgba(232, 160, 32, 0.4);
+}
+
+/* ==========================================================================
+   5. COMPONENTES VISUAIS (KPI Cards, Gráficos, Tabelas)
+   ========================================================================== */
+
+/* Grid de KPI Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-bottom: 4px solid var(--primary-red);
+  border-radius: var(--border-radius-card);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--accent-gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: var(--transition-smooth);
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-gold);
+}
+
+.kpi-card:hover::before {
+  transform: scaleX(1);
+}
+
+.kpi-title {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.kpi-value {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-red);
+  margin-bottom: 0.4rem;
+}
+
+.kpi-trend {
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.kpi-trend.positive { color: var(--status-good-green); }
+.kpi-trend.negative { color: var(--status-bad-red); }
+
+/* Grid de Visualizações (Gráficos) */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.8rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-title {
+  font-size: 1.35rem;
+}
+
+.chart-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.chart-container {
+  min-height: 320px;
+  width: 100%;
+}
+
+/* ==========================================================================
+   6. PÁGINA HOME / LANDING (Estilo Educativo Premium)
+   ========================================================================== */
+.hero-section {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  box-shadow: var(--shadow-gold);
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.hero-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), var(--primary-red), var(--accent-gold), transparent);
+}
+
+.hero-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+}
+
+.hero-tagline {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  line-height: 1.4;
+}
+
+.btn-primary {
+  display: inline-block;
+  background-color: var(--primary-red);
+  color: #FFF;
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 0.8rem 2rem;
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-btn);
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-red-hover);
+  border-color: var(--accent-gold);
+  box-shadow: var(--shadow-gold);
+  transform: translateY(-2px);
+}
+
+/* Grid Educativo */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.info-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+}
+
+.info-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-gold);
+}
+
+.info-card-icon {
+  font-size: 2.5rem;
+  color: var(--accent-gold);
+  margin-bottom: 1rem;
+}
+
+.info-card-title {
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.info-card-text {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  text-align: justify;
+}
+
+/* Seção Acadêmica na Home */
+.academic-box {
+  background-color: var(--accent-gold-soft);
+  border: 2px dashed var(--accent-gold);
+  border-radius: var(--border-radius-card);
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.academic-title {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.academic-quote {
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  font-style: italic;
+  text-align: center;
+  color: var(--primary-red);
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding: 0 1.5rem;
+}
+
+/* ==========================================================================
+   7. SEÇÃO MAPA DE CALOR INTERATIVO
+   ========================================================================== */
+.map-layout {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 1.5rem;
+  height: 600px;
+}
+
+@media (max-width: 900px) {
+  .map-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+.map-wrapper {
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  background-color: #AADAFF; /* Cor de água padrão para Leaflet */
+  height: 100%;
+  min-height: 450px;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+.map-panel {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  overflow-y: auto;
+  height: 100%;
+}
+
+.map-legend {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-btn);
+  padding: 0.8rem;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-sm);
+  margin-top: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.legend-color {
+  width: 20px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+/* Customização dos elementos visuais do Leaflet para bater com a marca */
+.leaflet-popup-content-wrapper {
+  background-color: var(--bg-card) !important;
+  color: var(--text-dark) !important;
+  border: 1px solid var(--accent-gold) !important;
+  font-family: var(--font-body) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.leaflet-popup-tip {
+  background-color: var(--bg-card) !important;
+  border-left: 1px solid var(--accent-gold) !important;
+  border-bottom: 1px solid var(--accent-gold) !important;
+}
+
+/* ==========================================================================
+   8. ANÁLISE ESTATÍSTICA (REGRESSÃO & CORRELAÇÃO)
+   ========================================================================== */
+.stats-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.8rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+  .stats-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stats-card-full {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+}
+
+.stats-intro {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+/* Matriz de Correlação Heatmap */
+.heatmap-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 1.05rem;
+}
+
+.heatmap-table th, .heatmap-table td {
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.heatmap-table th {
+  background-color: var(--accent-gold-soft);
+  font-family: var(--font-title);
+  color: var(--primary-red);
+}
+
+.heatmap-table td.val-strong-neg {
+  background-color: rgba(46, 107, 78, 0.25); /* Verde escuro soft */
+  color: var(--status-good-green);
+  font-weight: bold;
+}
+
+.heatmap-table td.val-mod-neg {
+  background-color: rgba(46, 107, 78, 0.12); /* Verde claro soft */
+  color: var(--status-good-green);
+}
+
+.heatmap-table td.val-weak {
+  background-color: rgba(232, 160, 32, 0.08); /* Dourado muito soft */
+  color: var(--text-muted);
+}
+
+.heatmap-table td.val-pos {
+  background-color: rgba(178, 34, 34, 0.12); /* Vermelho soft */
+  color: var(--status-bad-red);
+  font-weight: bold;
+}
+
+/* Interpretação Automática Box */
+.interpretation-box {
+  background-color: var(--bg-card);
+  border-left: 6px solid var(--primary-red);
+  border-radius: 4px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.interpretation-title {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  color: var(--primary-red);
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   9. TABELA DE DETALHES POR BAIRRO
+   ========================================================================== */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-btn);
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  text-align: left;
+}
+
+.data-table th, .data-table td {
+  padding: 0.9rem 1.2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+  background-color: var(--accent-gold-soft);
+  color: var(--primary-red);
+  font-family: var(--font-title);
+  font-weight: 700;
+}
+
+.data-table tr:hover {
+  background-color: var(--accent-red-soft);
+}
+
+.badge-risk {
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.badge-risk.baixo { background-color: rgba(46, 107, 78, 0.15); color: var(--status-good-green); }
+.badge-risk.moderado { background-color: rgba(232, 160, 32, 0.18); color: #B07A00; }
+.badge-risk.alto { background-color: rgba(178, 34, 34, 0.15); color: var(--status-bad-red); }
+.badge-risk.critico { background-color: var(--primary-red); color: #FFF; }
+
+/* ==========================================================================
+   10. RESPONSIVIDADE E ADAPTAÇÕES MOBILE
+   ========================================================================== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    top: 56px; /* Altura do mobile header */
+    left: -100%; /* Escondida por padrão lateralmente */
+    bottom: 0;
+    border-right: none;
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding: 1.5rem;
+    padding-top: 2rem;
+  }
+  
+  .mobile-header {
+    display: flex;
+    height: 56px;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.15rem;
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .map-layout {
+    height: auto;
+  }
+  
+  .map-wrapper {
+    height: 350px;
+  }
+}

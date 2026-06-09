@@ -1,0 +1,34 @@
+# NEXO · SAÚDE & SANEAMENTO
+# Arquivos ignorados pelo Git
+
+# Configurações locais e segredos (NUNCA enviar ao GitHub)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependências do Node.js
+node_modules/
+jspm_packages/
+web_modules/
+
+# Pastas de Build e Saída
+.next/
+out/
+build/
+dist/
+.vercel/
+
+# Logs e arquivos temporários do sistema
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.eslintcache
+.stylelintcache
+*.log
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db

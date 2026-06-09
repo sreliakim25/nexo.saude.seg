@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexo · Saúde & Saneamento</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Plataforma acadêmica de análise correlacional entre investimentos públicos em saneamento básico e indicadores de saúde municipal.">
+  <meta name="author" content="Projeto de Doutorado — Caruaru, PE">
+  
+  <!-- Manifesto PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#8B1A1A">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+  <!-- Fontes do Google (Playfair Display para títulos, Crimson Pro para corpo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300..900;1,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+  <!-- Folhas de Estilos Externas (Leaflet para Mapas) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Folha de Estilos do Design System Local -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Estrutura Principal da Aplicação -->
+  <div class="app-container">
+    
+    <!-- Cabeçalho de Navegação Mobile (Exibido apenas em telas pequenas) -->
+    <header class="mobile-header">
+      <div class="brand-title" style="font-family: var(--font-title); font-weight: bold; color: var(--primary-red); font-size: 1.4rem;">Nexo</div>
+      <button class="menu-toggle" aria-label="Abrir menu de navegação" id="menu-toggle-btn">☰</button>
+    </header>
+
+    <!-- Sidebar Lateral de Navegação (Fica fixa no desktop) -->
+    <aside class="sidebar" id="sidebar-nav">
+      <div class="brand">
+        <h1 class="brand-title">nexo</h1>
+        <div class="brand-subtitle">Saúde & Saneamento</div>
+      </div>
+      
+      <nav aria-label="Navegação principal do sistema">
+        <ul class="nav-menu">
+          <li>
+            <a href="#" class="nav-link active" data-view="home" aria-current="page">
+              <span class="icon">🏠</span> <span>Início</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-view="dashboard">
+              <span class="icon">📊</span> <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-view="mapa">
+              <span class="icon">🗺️</span> <span>Mapa de Calor</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-link" data-view="correlacao">
+              <span class="icon">📈</span> <span>Correlações</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <footer class="sidebar-footer">
+        <p>Projeto de Doutorado</p>
+        <p>Caruaru — PE, Brasil</p>
+      </footer>
+    </aside>
+
+    <!-- Conteúdo Dinâmico Central (SPA) -->
+    <main class="main-content">
+      
+      <!-- ====================================================================
+           BARRA DE FILTROS GLOBAIS (Compartilhada por todas as visualizações)
+           ==================================================================== -->
+      <section class="filter-bar" aria-label="Filtros globais de consulta">
+        <div class="filter-grid">
+          
+          <div class="filter-group">
+            <label class="filter-label" for="filter-estado">Estado</label>
+            <select id="filter-estado" class="filter-select">
+              <option value="PE">Pernambuco (PE)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="filter-municipio">Município</label>
+            <select id="filter-municipio" class="filter-select">
+              <option value="2611606">Caruaru (Piloto)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="filter-componente">Componente do Saneamento</label>
+            <select id="filter-componente" class="filter-select">
+              <option value="Total">Todos os Componentes</option>
+              <option value="AG">Abastecimento de Água (AG)</option>
+              <option value="ES">Esgotamento Sanitário (ES)</option>
+              <option value="RS">Resíduos Sólidos (RS)</option>
+              <option value="DR">Drenagem Pluvial (DR)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="filter-indicador">Indicador de Saúde</label>
+            <select id="filter-indicador" class="filter-select">
+              <option value="diarreia">Diarreias Notificadas (SINAN)</option>
+              <option value="leptospirose">Casos de Leptospirose (SINAN)</option>
+              <option value="hepatite_a">Casos de Hepatite A (SINAN)</option>
+              <option value="infantil">Mortalidade Infantil (SIM)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="filter-inicio">Ano Inicial</label>
+            <select id="filter-inicio" class="filter-select">
+              <option value="2014" selected>2014</option>
+              <option value="2015">2015</option>
+              <option value="2016">2016</option>
+              <option value="2017">2017</option>
+              <option value="2018">2018</option>
+              <option value="2019">2019</option>
+              <option value="2020">2020</option>
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="filter-fim">Ano Final</label>
+            <select id="filter-fim" class="filter-select">
+              <option value="2014">2014</option>
+              <option value="2015">2015</option>
+              <option value="2016">2016</option>
+              <option value="2017">2017</option>
+              <option value="2018">2018</option>
+              <option value="2019">2019</option>
+              <option value="2020">2020</option>
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+              <option value="2024" selected>2024</option>
+            </select>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           ABA 1: HOME / APRESENTAÇÃO
+           ==================================================================== -->
+      <section id="home-section" class="view-section active" aria-labelledby="home-title">
+        <div class="hero-section">
+          <h2 id="home-title" class="hero-title">Nexo · Saúde & Saneamento</h2>
+          <p class="hero-tagline">
+            Uma plataforma de análise acadêmica para correlacionar o impacto dos investimentos públicos em saneamento básico na redução de agravos de saúde pública municipal.
+          </p>
+          <a href="#" class="btn-primary" data-target="dashboard" onclick="document.querySelector('[data-view=dashboard]').click(); return false;">Explorar o Dashboard</a>
+        </div>
+
+        <!-- Estatísticas Rápidas do Mockup (Foco visual e engajador) -->
+        <div class="kpi-grid">
+          <div class="kpi-card" style="border-bottom-color: var(--accent-gold);">
+            <div class="kpi-title">Horizonte Temporal</div>
+            <div class="kpi-value">11 Anos</div>
+            <div class="kpi-trend" style="color: var(--text-muted)">Dados de 2014 a 2024</div>
+          </div>
+          <div class="kpi-card" style="border-bottom-color: var(--accent-gold);">
+            <div class="kpi-title">Município Piloto</div>
+            <div class="kpi-value">Caruaru</div>
+            <div class="kpi-trend" style="color: var(--text-muted)">Código IBGE: 2611606</div>
+          </div>
+          <div class="kpi-card" style="border-bottom-color: var(--accent-gold);">
+            <div class="kpi-title">Variáveis Públicas</div>
+            <div class="kpi-value">8 Fontes</div>
+            <div class="kpi-trend" style="color: var(--text-muted)">Investimentos e Saúde</div>
+          </div>
+          <div class="kpi-card" style="border-bottom-color: var(--accent-gold);">
+            <div class="kpi-title">Correlação Média</div>
+            <div class="kpi-value">r ≈ -0,85</div>
+            <div class="kpi-trend positive">Forte Impacto Social</div>
+          </div>
+        </div>
+
+        <!-- Seção Acadêmica da Hipótese de Pesquisa -->
+        <div class="academic-box">
+          <h3 class="academic-title">Hipótese Central de Doutorado</h3>
+          <p class="academic-quote">
+            "Existe uma correlação estatisticamente significativa e inversa entre o volume de investimentos públicos direcionados ao saneamento básico municipal e a ocorrência de doenças de veiculação hídrica na população residente?"
+          </p>
+          <p style="text-align: justify; font-size: 1.1rem; color: var(--text-muted);">
+            Esta plataforma integra e trata dados de sistemas oficiais para construir regressões lineares e calcular o coeficiente de Pearson. O objetivo é fornecer aos gestores públicos e acadêmicos evidências matemáticas que justifiquem a alocação de recursos em saneamento como medida de prevenção em saúde coletiva.
+          </p>
+        </div>
+
+        <!-- Seção de Fontes Governamentais Integradas -->
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-icon">🏥</div>
+            <h4 class="info-card-title">SINAN (DATASUS)</h4>
+            <p class="info-card-text">
+              Sistema de Informação de Agravos de Notificação. Usado para rastrear doenças como Diarreias, Leptospirose e Hepatite A no município.
+            </p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">📈</div>
+            <h4 class="info-card-title">SIM (DATASUS)</h4>
+            <p class="info-card-text">
+              Sistema de Informações sobre Mortalidade. Permite extrair a taxa de mortalidade por doenças infecciosas e óbitos infantis associados.
+            </p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">💧</div>
+            <h4 class="info-card-title">SNIS & SINISA</h4>
+            <p class="info-card-text">
+              Sistema Nacional de Informações sobre Saneamento. Fonte oficial de dados dos investimentos públicos anuais declarados pelos municípios.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           ABA 2: DASHBOARD E GRÁFICOS
+           ==================================================================== -->
+      <section id="dashboard-section" class="view-section" aria-labelledby="dashboard-title">
+        
+        <!-- KPIs Principais do Topo do Dashboard -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-title">Investimento Acumulado</div>
+            <div class="kpi-value" id="kpi-total-investido">R$ 0,0 M</div>
+            <div class="kpi-trend" style="color: var(--text-muted);">No período selecionado</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Redução de Casos</div>
+            <div class="kpi-value" id="kpi-reducao-casos">0.0%</div>
+            <div class="kpi-trend positive" style="font-size: 0.85rem;">Do início ao fim do período</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Coeficiente de Pearson</div>
+            <div class="kpi-value" id="kpi-pearson-r">0.00</div>
+            <div class="kpi-trend" id="kpi-pearson-trend">Calculando...</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Indicador de Saúde Recente</div>
+            <div class="kpi-value" id="kpi-mortalidade">0 óbitos</div>
+            <div class="kpi-trend" style="color: var(--text-muted)">Último ano registrado</div>
+          </div>
+        </div>
+
+        <!-- Grid de Gráficos do Dashboard -->
+        <div class="charts-grid">
+          
+          <!-- Grafico 1: Tendência Dupla -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Evolução Histórica</h3>
+                <p class="chart-subtitle">Correlação entre investimentos públicos e incidência de agravos</p>
+              </div>
+            </div>
+            <div class="chart-container" id="chart-trend">
+              <!-- Renderizado via ApexCharts no app.js -->
+            </div>
+          </div>
+
+          <!-- Grafico 2: Composição de Investimento -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Composição do Investimento</h3>
+                <p class="chart-subtitle">Divisão anual por componente em R$ (Milhões)</p>
+              </div>
+            </div>
+            <div class="chart-container" id="chart-composition">
+              <!-- Renderizado via ApexCharts no app.js -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tabela por Bairro de Caruaru (Microgeográfico) -->
+        <div class="stats-card-full">
+          <h3 style="margin-bottom: 0.5rem; font-family: var(--font-title); color: var(--primary-red);">Indicadores Locais por Bairro</h3>
+          <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 1rem;">
+            Dados cruzados estimativos por setor censitário urbano em Caruaru (Piloto de Análise Geográfica).
+          </p>
+          <div class="table-responsive">
+            <table class="data-table" id="bairros-table">
+              <thead>
+                <tr>
+                  <th scope="col">Bairro</th>
+                  <th scope="col">População Estimada</th>
+                  <th scope="col">Investimento Saneamento / hab</th>
+                  <th scope="col">Casos Notificados / 1000 hab</th>
+                  <th scope="col">Índice de Vulnerabilidade Nexo</th>
+                </tr>
+              </thead>
+              <tbody id="bairros-table-body">
+                <!-- Preenchido via app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           ABA 3: MAPA DE CALOR INTERATIVO
+           ==================================================================== -->
+      <section id="mapa-section" class="view-section" aria-labelledby="mapa-title">
+        <div class="stats-card-full" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h2 id="mapa-title" style="font-size: 1.6rem; margin-bottom: 0.3rem;">Mapa de Análise Espacial</h2>
+          <div id="map-drill-level" style="font-size: 1.1rem; color: var(--primary-red); font-family: var(--font-title); font-weight: bold;">
+            Drill-down: Estado de Pernambuco (Nível Regional)
+          </div>
+        </div>
+
+        <!-- Layout do Mapa: Esquerda Mapa, Direita Informações do Ponto Clicado -->
+        <div class="map-layout">
+          
+          <div class="map-wrapper">
+            <div id="map" aria-label="Mapa interativo de Pernambuco e Caruaru"></div>
+          </div>
+
+          <div class="map-panel">
+            <h3 id="map-details-title" style="font-family: var(--font-title); color: var(--primary-red); border-bottom: 2px solid var(--accent-gold); padding-bottom: 0.5rem;">
+              Carregando mapa...
+            </h3>
+            <div id="map-details-content" style="margin-top: 1rem; font-size: 1.05rem;">
+              <p>Selecione um ponto no mapa para carregar as métricas detalhadas.</p>
+            </div>
+            
+            <!-- Legenda do Mapa de Bairros -->
+            <div class="map-legend">
+              <h4 style="font-family: var(--font-title); font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--primary-red);">Escala Nexo (Risco Local)</h4>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: #2E6B4E;"></div>
+                <span>0 – 30 (Baixo Risco)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: #E8A020;"></div>
+                <span>31 – 60 (Risco Moderado)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF6B35;"></div>
+                <span>61 – 80 (Risco Alto)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: #8B1A1A;"></div>
+                <span>81 – 100 (Risco Crítico)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           ABA 4: ANÁLISE ESTATÍSTICA (Pearson e Regressão)
+           ==================================================================== -->
+      <section id="correlacao-section" class="view-section" aria-labelledby="correlacao-title">
+        
+        <div class="stats-layout">
+          
+          <!-- Box do Scatter Plot e Regressão -->
+          <div class="chart-card">
+            <div class="chart-container" id="chart-scatter">
+              <!-- Renderizado via ApexCharts no app.js -->
+            </div>
+          </div>
+
+          <!-- Coeficientes da Regressão e Pearson -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 id="correlacao-title" class="chart-title">Métricas de Correlação</h3>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
+              
+              <div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Coeficiente de Pearson (r)</p>
+                <div style="font-family: var(--font-title); font-size: 2.2rem; font-weight: bold; color: var(--primary-red);" id="stat-pearson-r">
+                  0.0000
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.3;">Mede o grau de correlação linear (varia de -1 a 1).</p>
+              </div>
+              
+              <div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Coeficiente de Determinação (R²)</p>
+                <div style="font-family: var(--font-title); font-size: 2.2rem; font-weight: bold; color: var(--primary-red);" id="stat-r-square">
+                  0.0000
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.3;">Proporção da variância do indicador explicada pelo investimento.</p>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <div>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">Coef. Angular (Slope)</p>
+                  <span style="font-size: 1.25rem; font-weight: bold;" id="stat-slope">0.00</span>
+                </div>
+                <div>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">Intercepto Linear (b)</p>
+                  <span style="font-size: 1.25rem; font-weight: bold;" id="stat-intercept">0.00</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Box da Matriz de Correlação Geral (Heatmap) -->
+        <div class="stats-card-full">
+          <h3 style="margin-bottom: 0.5rem; font-family: var(--font-title); color: var(--primary-red);">Matriz Multivariada de Correlações (r)</h3>
+          <p class="stats-intro">
+            Abaixo é exibido o cruzamento estatístico completo entre cada componente do saneamento básico e todos os agravos monitorados. Valores mais próximos de -1.00 (verde mais forte) indicam maior eficácia do recurso na queda de casos da doença.
+          </p>
+          
+          <div class="table-responsive">
+            <table class="heatmap-table" aria-label="Matriz multivariada de coeficientes de Pearson">
+              <thead>
+                <tr>
+                  <th scope="col">Componente / Agravo</th>
+                  <th scope="col">Diarreia (SINAN)</th>
+                  <th scope="col">Leptospirose (SINAN)</th>
+                  <th scope="col">Hepatite A (SINAN)</th>
+                  <th scope="col">Mortalidade Infantil (SIM)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Abastecimento de Água (AG)</th>
+                  <td id="cell-ag-diarreia">-0.00</td>
+                  <td id="cell-ag-leptospirose">-0.00</td>
+                  <td id="cell-ag-hepatite_a">-0.00</td>
+                  <td id="cell-ag-infantil">-0.00</td>
+                </tr>
+                <tr>
+                  <th scope="row">Esgotamento Sanitário (ES)</th>
+                  <td id="cell-es-diarreia">-0.00</td>
+                  <td id="cell-es-leptospirose">-0.00</td>
+                  <td id="cell-es-hepatite_a">-0.00</td>
+                  <td id="cell-es-infantil">-0.00</td>
+                </tr>
+                <tr>
+                  <th scope="row">Drenagem Pluvial (DR)</th>
+                  <td id="cell-dr-diarreia">-0.00</td>
+                  <td id="cell-dr-leptospirose">-0.00</td>
+                  <td id="cell-dr-hepatite_a">-0.00</td>
+                  <td id="cell-dr-infantil">-0.00</td>
+                </tr>
+                <tr>
+                  <th scope="row">Resíduos Sólidos (RS)</th>
+                  <td id="cell-rs-diarreia">-0.00</td>
+                  <td id="cell-rs-leptospirose">-0.00</td>
+                  <td id="cell-rs-hepatite_a">-0.00</td>
+                  <td id="cell-rs-infantil">-0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Interpretação Acadêmica Didática Automática -->
+          <div class="interpretation-box">
+            <h4 class="interpretation-title">Interpretação Científica do Modelo</h4>
+            <div id="stat-text-interpretation">
+              Selecione os filtros acima para recalcular a análise inferencial da regressão.
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Bibliotecas Necessárias via CDN (Leaflet para mapas e ApexCharts para gráficos) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+  <!-- Lógica da Aplicação SPA -->
+  <script src="app.js"></script>
+</body>
+</html>
