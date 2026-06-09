@@ -1,0 +1,5 @@
+{
+  "cleanUrls": true,
+  "buildCommand": "echo 'Building static mockup...'",
+  "outputDirectory": "."
+}
